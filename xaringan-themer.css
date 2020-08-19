@@ -302,6 +302,10 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
   color: red;
 }
 
+.texto_intermedio{
+  color: black;
+  font-size: var(--header-h1-font-size);
+}
 
 .caja {
   width: 600px;
