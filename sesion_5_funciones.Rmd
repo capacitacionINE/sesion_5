@@ -117,11 +117,11 @@ background-position: 100% 0%
 
 La función `mean` hace lo siguiente:
 
-- Recibe valores
+- Recibe números
 
-- Suma esos valores
+- Suma esos números
 
-- Divide la suma por el número de valores
+- Divide la suma por el total de números
 
 --
 
@@ -212,7 +212,6 @@ background-position: 100% 0%
 
 ```{r, eval=F}
  
-
 epf2 %>%
   group_by(quintil) %>% 
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %>% 
@@ -730,11 +729,101 @@ background-position: 100% 0%
 
 ]
 
-Si alguien se está preguntando cómo podemos combinar el uso de funciones con `dplyr`, será tema de la próxima clase 
+--
+
+Si estás pensando que esto se puede combinar con `dplyr`, puedes sentirte así
 
 --
 
-La combinación de `dplyr` con nuestras propias funciones es una herramienta poderosa para el procesamiento de datos
+.center[
+<img src="https://media.giphy.com/media/eJX4NrE7T9yhgvqXKX/giphy.gif" width="300" />
+
+]
+
+--
+
+La combinación de `dplyr` con nuestras propias funciones nos permite crear herramientas poderosas para el procesamiento de datos🤓
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Funciones propias y dplyr
+
+Necesito hacer varias ediciones a una columna de tipo character
+
+
+```{r}
+df <- data.frame(texto = c("3 CAJAS DE LECHE!!", "1 KILO DE ARROZ CON ILEGIBLE-", "CHOCOLATE EN BARRA"))
+df
+```
+
+--
+
+Creamos una función que hace varias ediciones
+
+```{r}
+library(tidyverse)
+editar_texto <- function(texto) {
+  texto2 <- tolower(texto)
+  texto2 <- str_remove_all(string = texto2, pattern = "ilegible")
+  texto2 <- str_remove_all(string = texto2, pattern = "[:digit:]")
+  texto2 <- str_remove_all(string = texto2, pattern = "[:punct:]")
+  texto2 <- str_remove_all(string = texto2, pattern = "\\+")
+  texto2 <- str_replace(string = texto2, pattern = "chocolate", replacement = "no sano")
+  return(texto2)
+}
+
+
+```
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Funciones propias y dplyr
+
+
+Luego puedo usarla dentro del contexto de `dplyr`
+
+```{r}
+df %>% 
+  mutate(texto2 = editar_texto(texto))
+```
+
+--
+
+.center[
+<img src="imagenes/alicate2.PNG" width="300" />
+
+]
+
+
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Funciones propias y dplyr
+
+Probemos con una base de datos de verdad
+
+```{r}
+load(file = "data/gastos_reducida.RData")
+names(bg) <- tolower(names(bg))
+
+bg2 <- bg %>% 
+  mutate(descripcion2 = editar_texto(descripcion_del_gasto)) %>% 
+  select(descripcion2, descripcion_del_gasto) %>% 
+  slice(1:100) 
+
+
+```
+
+
 
 ---
 background-image: url("imagenes/fondo2.PNG")
@@ -742,6 +831,28 @@ background-size: contain;
 background-position: 100% 0%
 
 # Para seguir profundizando
+
+## Comentario final
+
+Para construir funciones que llaman a funciones de `dplyr`, es necesario usar evaluaciones no estándar. 
+
+--
+
+Hasta hace un tiempo era necesario aprender un poco de teoría sobre evaluaciones en `R`
+
+--
+
+Hace poco nuestro amigo Hadley Wickham introdujo el operador `{{ }}`, que hace que la implementación sea extraordinariamente fácil
+
+
+--
+
+Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla)
+
+
+--
+
+## Material de estudio
 
 [R para Ciencia de datos](https://r4ds.had.co.nz/functions.html) (énfasis práctico)
 
