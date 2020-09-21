@@ -112,6 +112,65 @@ background-image: url("imagenes/fondo2.PNG")
 background-size: contain;
 background-position: 100% 0%
 
+# La función mean
+
+
+La función `mean` hace lo siguiente:
+
+- Recibe valores
+
+- Suma esos valores
+
+- Divide la suma por el número de valores
+
+--
+
+**input**: 1, 3 y 4
+
+```{r}
+suma <- 1 + 2 + 3
+suma / 3
+```
+--
+
+**input**: 6 y 7
+
+```{r}
+suma <- 6 + 7
+suma / 2
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# La función mean
+
+De manera genérica la función hace lo siguiente
+
+.center[$$\bar{X} = \frac{\sum_{i=1}^{n}x_i}{n}$$
+]
+
+--
+
+`mean` resuelve el problema de la media de manera general
+
+--
+
+.discussion[
+**Concepto importante**: las funciones tienen algún nivel de generalidad en la resolución de una tarea
+]
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
 # ¿Por qué usar funciones?
 
 ## Volvamos a la solución de la última tarea
@@ -140,9 +199,6 @@ epf2 <- epf2 %>%
     ing_disp_hog_hd_pc <= quintiles[5] ~ "quntil4",
     ing_disp_hog_hd_pc <= quintiles[6] ~ "quntil5")
 )
-
-
-
 ```
 
 ---
@@ -216,6 +272,46 @@ Las funciones nos ayudan a abstrear tareas, permitiéndonos:
 - Crear código más fácil de actualizar
 
 - Crear código más fácil de leer para mí y para otros 
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Analicemos otro caso
+
+```{r, eval = F}
+df <- tibble::tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+df$a <- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b <- (df$b - min(df$b)) / (max(df$b) - min(df$b))
+df$c <- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d <- (df$d - min(df$d)) / (max(df$d) - min(df$d))
+```
+
+--
+
+¿Pueden ver que existe cierto patrón repetitivo?
+
+--
+
+En esta clase aprenderemos a encapsular esta tarea, para que quede así
+
+```{r, eval=F}
+df$a <- reescalar(df$a)
+df$b <- reescalar(df$b)
+df$c <- reescalar(df$c)
+df$d <- reescalar(df$d)
+```
+
+
+
+
 
 ---
 
@@ -434,7 +530,7 @@ resta_cuadrados(5, "amigo")
 
 `R` está asumiento que el valor para el segundo argumento es "amigo"
 
-En `R` el operador potencia no adimite el uso de un strings
+En `R` el operador potencia no admite el uso de strings
 
 
 ---
@@ -531,14 +627,14 @@ background-position: 100% 0%
 
 #Scope de la función
 
-## Las variables creadas al interior de una función solo existen dentro de ella: viven dentro del scope de la función
+## Las variables creadas al interior de una función solo existen dentro de ella: viven dentro del *scope* de la función
 
 --
 
 ## ¿Qué mostrará la función `print`?
 
 ```{r, results = "hide"}
-resultado <- 999
+resultado <- 999 #<<
 
 resta_cuadrados <- function(x, y, nombre) {
   resultado <- x**2 - y**2 
@@ -576,7 +672,7 @@ Vamos a crear una función que recibe un vector y devuelve 3 cosas:
 
 Piensen por ejemplo en el vector `c(1, 50, 30, 23)`
 
-**Pista 1**: Puedes echar mano las funciones `min`, `max` y `mean`  
+**Pista 1**: Puedes echar mano a las funciones `min`, `max` y `mean`  
 
 **Pista 2**: Puedes usar la función `c()` para almacenar tus valores antes de devolverlos
 
@@ -605,7 +701,55 @@ resumen <- function(v) {
 resumen(vector)
 ```
 
+--
 
+Ahora tienen su propia función de resumen cada vez que la necesiten 😀
+
+--
+
+Por ejemplo, podemos usar los datos de la clase pasada y hacer un resumen del PIB
+
+```{r}
+resumen(gapminder::gapminder$gdpPercap)
+```
+
+--
+
+No es tan útil, ya que existe la función `summary`, pero la lógica aplica para cualquier otra tarea
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Y qué hago con esto?  
+
+.center[
+<img src="https://media.giphy.com/media/a5viI92PAF89q/giphy.gif" width="200" />
+
+]
+
+Si alguien se está preguntando cómo podemos combinar el uso de funciones con `dplyr`, será tema de la próxima clase 
+
+--
+
+La combinación de `dplyr` con nuestras propias funciones es una herramienta poderosa para el procesamiento de datos
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+[R para Ciencia de datos](https://r4ds.had.co.nz/functions.html) (énfasis práctico)
+
+[Advanced R](https://adv-r.hadley.nz/functions.html) (énfasis teórico)
+
+[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial)
+
+[Carpentries](https://swcarpentry.github.io/r-novice-inflammation/02-func-R/) (breve)
 
 ---
 .linea-superior[]
@@ -620,7 +764,135 @@ resumen(vector)
 Vamos a pasar al segundo tema de esta clase
 ]
 
+## Estilo de código
+
 ]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Por qué es relevante el estilo?
+
+Queremos que nuestro código sea entendido por nuestro yo del futuro 
+
+--
+
+Queremos que otras personas entiendan nuestro código
+
+--
+
+Para lograr ambas cosas existen algunas convenciones, que puedes revisar [acá](https://style.tidyverse.org/syntax.html#object-names)
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Código desordenado
+
+.center[
+<img src="https://media.giphy.com/media/ef7GqsDYDIKFa/giphy.gif" width="700" />
+
+]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Comentarios
+
+Deben estar pensados para ser leídos por alguien que no ha escrito el código
+
+--
+
+No deben ser una transcripción del código, sino una explicación del mismo
+
+--
+
+<img src="imagenes/incorrecto.PNG" width="60" />
+
+```{r,eval=F}
+#Sacar a los -99 y generar hogar tipo 1
+df <- df %>% 
+  filter(gasto != "-99") %>% 
+  mutate(tipo1 = if_else(tipo_hogar == 1, 1, 0))
+
+```
+
+--
+
+<img src="imagenes/correcto.PNG" width="60" />
+```{r,eval=F}
+#-99 se elimina porque corresponden a gastos missing.
+# Los hogares tipo uno son aquellos con adultos mayores. Se necesita
+#  para el análisis posterior.  
+df <- df %>% 
+  filter(gasto != "-99") %>% 
+  mutate(tipo1 = if_else(tipo_hogar == 1, 1, 0))
+
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Espacios, comas y operadores 
+
+--
+
+<img src="imagenes/incorrecto.PNG" width="60" />
+```{r, eval=F}
+filter(df, gasto!="-99" & sexo==1 & edad>=18) 
+df[df$gasto!="-99" & df$sexo==1 & df$edad>=18, c("gasto","sexo")]
+```
+
+--
+
+<img src="imagenes/correcto.PNG" width="60" />
+```{r, eval=F}
+filter(df, gasto != "-99" & sexo == 1 & edad >= 18) 
+df[df$gasto != "-99" & df$sexo == 1 & df$edad >= 18, c("gasto", "sexo")]
+```
+
+
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# pipes
+
+No es deseable ahorrar líneas a costa de perder legibilidad
+
+<img src="imagenes/incorrecto.PNG" width="60" />
+
+```{r, eval=F}
+iris %>% group_by(Species) %>% summarize_all(mean) %>%
+ungroup %>% gather(measure, value, -Species) %>%
+arrange(value)
+
+```
+
+<img src="imagenes/correcto.PNG" width="60" />
+
+```{r, eval=F}
+iris %>%
+  group_by(Species) %>%
+  summarize_if(is.numeric, mean) %>%
+  ungroup() %>%
+  gather(measure, value, -Species) %>%
+  arrange(value)
+```
+
 ---
 
 class: center, middle

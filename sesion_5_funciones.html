@@ -4,7 +4,7 @@
     <title>Proceso de acompañamiento coyuntural y automatización de la Encuesta Nacional de Empleo</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <meta name="date" content="2020-08-18" />
+    <meta name="date" content="2020-09-11" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -90,6 +90,75 @@ background-position: 100% 0%
 .center[
 &lt;img src="imagenes/function.PNG" width="700" /&gt;
 ]
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# La función mean
+
+
+La función `mean` hace lo siguiente:
+
+- Recibe valores
+
+- Suma esos valores
+
+- Divide la suma por el número de valores
+
+--
+
+**input**: 1, 3 y 4
+
+
+```r
+suma &lt;- 1 + 2 + 3
+suma / 3
+```
+
+```
+## [1] 2
+```
+--
+
+**input**: 6 y 7
+
+
+```r
+suma &lt;- 6 + 7
+suma / 2
+```
+
+```
+## [1] 6.5
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# La función mean
+
+De manera genérica la función hace lo siguiente
+
+.center[$$\bar{X} = \frac{\sum_{i=1}^{n}x_i}{n}$$
+]
+
+--
+
+`mean` resuelve el problema de la media de manera general
+
+--
+
+.discussion[
+**Concepto importante**: las funciones tienen algún nivel de generalidad en la resolución de una tarea
+]
+
 
 ---
 
@@ -196,6 +265,48 @@ Las funciones nos ayudan a abstrear tareas, permitiéndonos:
 - Crear código más fácil de actualizar
 
 - Crear código más fácil de leer para mí y para otros 
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Analicemos otro caso
+
+
+```r
+df &lt;- tibble::tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+df$a &lt;- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b &lt;- (df$b - min(df$b)) / (max(df$b) - min(df$b))
+df$c &lt;- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d &lt;- (df$d - min(df$d)) / (max(df$d) - min(df$d))
+```
+
+--
+
+¿Pueden ver que existe cierto patrón repetitivo?
+
+--
+
+En esta clase aprenderemos a encapsular esta tarea, para que quede así
+
+
+```r
+df$a &lt;- reescalar(df$a)
+df$b &lt;- reescalar(df$b)
+df$c &lt;- reescalar(df$c)
+df$d &lt;- reescalar(df$d)
+```
+
+
+
+
 
 ---
 
@@ -444,7 +555,7 @@ resta_cuadrados(5, "amigo")
 
 `R` está asumiento que el valor para el segundo argumento es "amigo"
 
-En `R` el operador potencia no adimite el uso de un strings
+En `R` el operador potencia no admite el uso de strings
 
 
 ---
@@ -551,7 +662,7 @@ background-position: 100% 0%
 
 #Scope de la función
 
-## Las variables creadas al interior de una función solo existen dentro de ella: viven dentro del scope de la función
+## Las variables creadas al interior de una función solo existen dentro de ella: viven dentro del *scope* de la función
 
 --
 
@@ -559,7 +670,7 @@ background-position: 100% 0%
 
 
 ```r
-resultado &lt;- 999
+*resultado &lt;- 999
 
 resta_cuadrados &lt;- function(x, y, nombre) {
   resultado &lt;- x**2 - y**2 
@@ -597,7 +708,7 @@ Vamos a crear una función que recibe un vector y devuelve 3 cosas:
 
 Piensen por ejemplo en el vector `c(1, 50, 30, 23)`
 
-**Pista 1**: Puedes echar mano las funciones `min`, `max` y `mean`  
+**Pista 1**: Puedes echar mano a las funciones `min`, `max` y `mean`  
 
 **Pista 2**: Puedes usar la función `c()` para almacenar tus valores antes de devolverlos
 
@@ -633,7 +744,61 @@ resumen(vector)
 ##     1    50    26
 ```
 
+--
 
+Ahora tienen su propia función de resumen cada vez que la necesiten 😀
+
+--
+
+Por ejemplo, podemos usar los datos de la clase pasada y hacer un resumen del PIB
+
+
+```r
+resumen(gapminder::gapminder$gdpPercap)
+```
+
+```
+##         min         max       media 
+##    241.1659 113523.1329   7215.3271
+```
+
+--
+
+No es tan útil, ya que existe la función `summary`, pero la lógica aplica para cualquier otra tarea
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Y qué hago con esto?  
+
+.center[
+&lt;img src="https://media.giphy.com/media/a5viI92PAF89q/giphy.gif" width="200" /&gt;
+
+]
+
+Si alguien se está preguntando cómo podemos combinar el uso de funciones con `dplyr`, será tema de la próxima clase 
+
+--
+
+La combinación de `dplyr` con nuestras propias funciones es una herramienta poderosa para el procesamiento de datos
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+[R para Ciencia de datos](https://r4ds.had.co.nz/functions.html) (énfasis práctico)
+
+[Advanced R](https://adv-r.hadley.nz/functions.html) (énfasis teórico)
+
+[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial)
+
+[Carpentries](https://swcarpentry.github.io/r-novice-inflammation/02-func-R/) (breve)
 
 ---
 .linea-superior[]
@@ -648,7 +813,138 @@ resumen(vector)
 Vamos a pasar al segundo tema de esta clase
 ]
 
+## Estilo de código
+
 ]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Por qué es relevante el estilo?
+
+Queremos que nuestro código sea entendido por nuestro yo del futuro 
+
+--
+
+Queremos que otras personas entiendan nuestro código
+
+--
+
+Para lograr ambas cosas existen algunas convenciones, que puedes revisar [acá](https://style.tidyverse.org/syntax.html#object-names)
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Código desordenado
+
+.center[
+&lt;img src="https://media.giphy.com/media/ef7GqsDYDIKFa/giphy.gif" width="700" /&gt;
+
+]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Comentarios
+
+Deben estar pensados para ser leídos por alguien que no ha escrito el código
+
+--
+
+No deben ser una transcripción del código, sino una explicación del mismo
+
+--
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+
+```r
+#Sacar a los -99 y generar hogar tipo 1
+df &lt;- df %&gt;% 
+  filter(gasto != "-99") %&gt;% 
+  mutate(tipo1 = if_else(tipo_hogar == 1, 1, 0))
+```
+
+--
+
+&lt;img src="imagenes/correcto.PNG" width="60" /&gt;
+
+```r
+#-99 se elimina porque corresponden a gastos missing.
+# Los hogares tipo uno son aquellos con adultos mayores. Se necesita
+#  para el análisis posterior.  
+df &lt;- df %&gt;% 
+  filter(gasto != "-99") %&gt;% 
+  mutate(tipo1 = if_else(tipo_hogar == 1, 1, 0))
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Espacios, comas y operadores 
+
+--
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+```r
+filter(df, gasto!="-99" &amp; sexo==1 &amp; edad&gt;=18) 
+df[df$gasto!="-99" &amp; df$sexo==1 &amp; df$edad&gt;=18, c("gasto","sexo")]
+```
+
+--
+
+&lt;img src="imagenes/correcto.PNG" width="60" /&gt;
+
+```r
+filter(df, gasto != "-99" &amp; sexo == 1 &amp; edad &gt;= 18) 
+df[df$gasto != "-99" &amp; df$sexo == 1 &amp; df$edad &gt;= 18, c("gasto", "sexo")]
+```
+
+
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# pipes
+
+No es deseable ahorrar líneas a costa de perder legibilidad
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+
+```r
+iris %&gt;% group_by(Species) %&gt;% summarize_all(mean) %&gt;%
+ungroup %&gt;% gather(measure, value, -Species) %&gt;%
+arrange(value)
+```
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+
+```r
+iris %&gt;%
+  group_by(Species) %&gt;%
+  summarize_if(is.numeric, mean) %&gt;%
+  ungroup() %&gt;%
+  gather(measure, value, -Species) %&gt;%
+  arrange(value)
+```
+
 ---
 
 class: center, middle
