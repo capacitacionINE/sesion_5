@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    
     <title>Proceso de acompañamiento coyuntural y automatización de la Encuesta Nacional de Empleo</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <meta name="date" content="2020-08-05" />
+    <meta name="date" content="2020-09-21" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -91,6 +90,987 @@ background-position: 100% 0%
 .center[
 &lt;img src="imagenes/function.PNG" width="700" /&gt;
 ]
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# La función mean
+
+
+La función `mean` hace lo siguiente:
+
+- Recibe números
+
+- Suma esos números
+
+- Divide la suma por el total de números
+
+--
+
+**input**: 1, 3 y 4
+
+
+```r
+suma &lt;- 1 + 2 + 3
+suma / 3
+```
+
+```
+## [1] 2
+```
+--
+
+**input**: 6 y 7
+
+
+```r
+suma &lt;- 6 + 7
+suma / 2
+```
+
+```
+## [1] 6.5
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# La función mean
+
+De manera genérica la función hace lo siguiente
+
+.center[$$\bar{X} = \frac{\sum_{i=1}^{n}x_i}{n}$$
+]
+
+--
+
+`mean` resuelve el problema de la media de manera general
+
+--
+
+.discussion[
+**Concepto importante**: las funciones tienen algún nivel de generalidad en la resolución de una tarea
+]
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Por qué usar funciones?
+
+## Volvamos a la solución de la última tarea
+
+
+```r
+options(scipen = "999") #para eliminar notación científica
+#Abrir base de la epf
+epf &lt;- read.delim("data/base-personas-viii-epf-(formato-csv).csv", sep = ";" )
+names(epf) &lt;- tolower(names(epf)) #pasar a minúscula
+
+#Reemplazar las comas por punto
+epf2 &lt;- epf %&gt;% 
+  select(gastot_hd_pc, ing_disp_hog_hd_pc, zona =  ï..zona, jhogar, sexo) %&gt;% 
+  mutate_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(as.numeric(gsub(pattern = ",", replacement = ".", x = .)) )) %&gt;% 
+  filter(jhogar == 1) #dejar un registro por hogar
+
+#Calcular los puntos de corte para los quintiles  
+quintiles &lt;- quantile(x = epf2$ing_disp_hog_hd_pc, c(0, 0.2, 0.4, 0.6, 0.8, 1)) 
+
+#Crear la variable quintil.
+epf2 &lt;- epf2 %&gt;% 
+  mutate(quintil =  case_when(
+    ing_disp_hog_hd_pc &lt;= quintiles[2] ~ "quntil1",
+    ing_disp_hog_hd_pc &lt;= quintiles[3] ~ "quntil2",
+    ing_disp_hog_hd_pc &lt;= quintiles[4] ~ "quntil3",
+    ing_disp_hog_hd_pc &lt;= quintiles[5] ~ "quntil4",
+    ing_disp_hog_hd_pc &lt;= quintiles[6] ~ "quntil5")
+)
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Por qué usar funciones?
+
+## ¿Notan una repetición de código?
+
+
+```r
+epf2 %&gt;%
+  group_by(quintil) %&gt;% 
+  summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %&gt;% 
+  pivot_longer(-quintil, names_to = "tipo", values_to = "valor") %&gt;% 
+  ggplot(aes(quintil, valor, fill = tipo )) +
+  geom_bar(stat = "identity", position = "dodge")
+
+epf2 %&gt;%
+  group_by(zona) %&gt;% 
+  summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %&gt;% 
+  pivot_longer(-zona, names_to = "tipo", values_to = "valor") %&gt;% 
+  ggplot(aes(as.factor(zona), valor, fill = tipo )) +
+  geom_bar(stat = "identity", position = "dodge")
+
+
+epf2 %&gt;%
+  group_by(sexo) %&gt;% 
+  summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %&gt;% 
+  pivot_longer(-sexo, names_to = "tipo", values_to = "valor") %&gt;% 
+  ggplot(aes(as.factor(sexo), valor, fill = tipo )) +
+  geom_bar(stat = "identity", position = "dodge")
+```
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Y si ordenamos esto de otra forma?
+
+
+```r
+epf &lt;- read.delim("data/base-personas-viii-epf-(formato-csv).csv", sep = ";" )
+
+datos_editados &lt;-  editar_datos(epf)
+
+grafico1 &lt;- generar_grafico(datos_editados, quintil)
+grafico2 &lt;- generar_grafico(datos_editados, zona)
+grafico3 &lt;- generar_grafico(datos_editados, sexo)
+```
+
+
+--
+.center[
+## Es más fácil de leer, ¿cierto?
+]
+
+--
+
+Las funciones nos ayudan a abstrear tareas, permitiéndonos: 
+
+- Reutilizar código
+
+- Crear código más fácil de actualizar
+
+- Crear código más fácil de leer para mí y para otros 
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Analicemos otro caso
+
+
+```r
+df &lt;- tibble::tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+df$a &lt;- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b &lt;- (df$b - min(df$b)) / (max(df$b) - min(df$b))
+df$c &lt;- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d &lt;- (df$d - min(df$d)) / (max(df$d) - min(df$d))
+```
+
+--
+
+¿Pueden ver que existe cierto patrón repetitivo?
+
+--
+
+En esta clase aprenderemos a encapsular esta tarea, para que quede así
+
+
+```r
+df$a &lt;- reescalar(df$a)
+df$b &lt;- reescalar(df$b)
+df$c &lt;- reescalar(df$c)
+df$d &lt;- reescalar(df$d)
+```
+
+
+
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Un ejemplo real del INE
+
+## Cargas de asignación para codificación
+
+
+```r
+#Seleccionar los registros a codificar
+seleccion_cod &lt;- seleccionar_codificacion(ciuo, batch[[codificador]])
+
+#Asignar carga de codificación a una persona en específico  
+carga_codificacion[[codificador]] &lt;- aumentar_cargas(carga_codificacion[[codificador]], seleccion_cod)
+
+#Disminuir registros asignados
+asignados &lt;- seleccion_cod %&gt;% 
+  pull(idrph)
+
+ciuo &lt;- ciuo %&gt;% 
+  filter(!idrph %in% asignados)
+
+#Seleccionar reistros que serán revisados. Solo se revisa el 90% 
+a_revisar &lt;- seleccionar_revision(seleccion_cod)
+
+#Dsitribuir entre todos las personas restantes los registros a revisar
+asignacion_revision &lt;-  distribuir_revision(a_revisar, codificadores, codificador)
+```
+
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Implementación en R
+
+
+```r
+mi_funcion &lt;- function(x, y) {
+  suma &lt;- x + y   
+  return(suma)
+}
+```
+
+--
+
+
+```r
+formals(mi_funcion)
+```
+
+```
+## $x
+## 
+## 
+## $y
+```
+
+
+--
+
+
+```r
+body(mi_funcion)
+```
+
+```
+## {
+##     suma &lt;- x + y
+##     return(suma)
+## }
+```
+
+--
+
+
+```r
+environment(mi_funcion)
+```
+
+```
+## &lt;environment: R_GlobalEnv&gt;
+```
+
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Implementación en R
+
+
+Partes de la función: 
+
+- Parámetros (`formals`)
+
+- Cuerpo de la función (`body`)
+
+- Ambiente (`environment`)
+
+--
+
+## ¿Qué va a devolver esta llamada?
+
+
+```r
+mi_funcion(1, 2)
+```
+--
+
+```
+## [1] 3
+```
+
+--
+
+.red[¡atención!] El orden de los argumentos es importante .red[¡atención!]
+
+--
+
+`R` interpreta lo siguiente: `x = 1` e  `y = 2`
+
+--
+
+Si quieres ingresar los argumentos en otro orden, debes usar sus nombres 
+
+
+```r
+mi_funcion(y = 2, x = 1)
+```
+
+--
+
+Si no hay preguntas, vamos por el primer ejercicio
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Ejercicio rápido
+
+Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadros de dos números. Luego, evalúa la función en los números 5 y 4 (en ese orden)
+
+--
+
+
+```r
+resta_cuadrados &lt;- function(x, y) {
+  x**2 - y**2
+}
+resta_cuadrados(5, 4)
+```
+
+```
+## [1] 9
+```
+--
+
+## ¿Notan algo diferente en el cuerpo de la función?
+
+--
+
+Las funciones en R devuelven siempre la última sentencia
+
+El uso de `return` es opcional
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Ejercicio rápido 
+
+Hagamos que nuestra función sea un poco más interesante. 
+
+Agreguemos un argumento que reciba tu nombre en formato string. La función debe devolver el siguiente texto: *[nombre], el resultado es: [resultado]*    
+
+--
+
+
+```
+## [1] "amigo, el resultados es: 9"
+```
+--
+
+
+```r
+resta_cuadrados &lt;- function(x, y, nombre) {
+  resultado &lt;- x**2 - y**2
+  texto &lt;- paste0(nombre, ", el resultados es: ", resultado)
+  return(texto)
+}
+
+resta_cuadrados(5, 4, "amigo")
+```
+
+```
+## [1] "amigo, el resultados es: 9"
+```
+
+
+---
+
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Argumentos ausentes 
+
+
+
+```r
+resta_cuadrados &lt;- function(x, y, nombre) {
+  resultado &lt;- x**2 - y**2
+  texto &lt;- paste0(nombre, ", el resultados es: ", resultado)
+  return(texto)
+}
+
+resta_cuadrados(5, "amigo")
+```
+
+```
+## Error in y^2: argumento no-numérico para operador binario
+```
+--
+
+## ¿Qué es lo que está pasando acá?
+
+.center[
+&lt;img src="https://media.giphy.com/media/3o7buirYcmV5nSwIRW/giphy.gif" width="200" /&gt;
+]
+
+
+--
+
+`R` está asumiento que el valor para el segundo argumento es "amigo"
+
+En `R` el operador potencia no admite el uso de strings
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Argumentos ausentes 
+
+## Agreguemos explícitamente los nombres de cada argumento
+
+--
+
+
+```r
+resta_cuadrados &lt;- function(x, y, nombre) {
+  resultado &lt;- x**2 - y**2
+  texto &lt;- paste0(nombre, ", el resultados es: ", resultado)
+  return(texto)
+}
+
+*resta_cuadrados(x = 5, nombre =  "amigo")
+```
+
+```
+## Error in resta_cuadrados(x = 5, nombre = "amigo"): el argumento "y" está ausente, sin valor por omisión
+```
+--
+
+.center[
+&lt;img src="https://media.giphy.com/media/3o7buirYcmV5nSwIRW/giphy.gif" width="200" /&gt;
+]
+ 
+
+--
+
+R no encuentra la variable `y`, por lo que no puede computar la expresión
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+#Valores por defecto
+
+
+
+```r
+resta_cuadrados &lt;- function(x, y = 4, nombre) {
+  resultado &lt;- x**2 - y**2
+  texto &lt;- paste0(nombre, ", el resultados es: ", resultado)
+  return(texto)
+}
+
+resta_cuadrados(x = 5,  nombre =  "amigo")
+```
+
+```
+## [1] "amigo, el resultados es: 9"
+```
+--
+
+Si el usuario no ingresa ningún valor, `y` valdrá 4
+
+Esto es muy útil cuando se le quiere dar la posibilidad al usuario de que no ingrese todos los argumentos
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+#Scope de la función
+
+## Queremos acceder al objeto resultado, creado dentro de la función
+
+## ¿Qué creen que va a producir la línea destacada?
+
+
+
+```r
+resta_cuadrados &lt;- function(x, y, nombre) {
+* resultado &lt;- x**2 - y**2
+  texto &lt;- paste0(nombre, ", el resultados es: ", resultado)
+  return(texto)
+}
+
+resta_cuadrados(x = 5, y = 4,  nombre =  "amigo")
+*print(resultado)
+```
+--
+
+
+```
+## Error in print(resultado): objeto 'resultado' no encontrado
+```
+.center[
+&lt;img src="https://media.giphy.com/media/a5viI92PAF89q/giphy.gif" width="200" /&gt;
+]
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+#Scope de la función
+
+## Las variables creadas al interior de una función solo existen dentro de ella: viven dentro del *scope* de la función
+
+--
+
+## ¿Qué mostrará la función `print`?
+
+
+```r
+*resultado &lt;- 999
+
+resta_cuadrados &lt;- function(x, y, nombre) {
+  resultado &lt;- x**2 - y**2 
+  texto &lt;- paste0(nombre, ", el resultados es: ", resultado)
+  return(texto)
+}
+resta_cuadrados(x = 5, y = 4,  nombre =  "amigo")
+*print(resultado)
+```
+
+--
+
+
+```
+## [1] 999
+```
+
+Lo que ocurre dentro de la función no afecta lo de afuera
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Ejercicio ~~no tan~~ largo
+
+Vamos a crear una función que recibe un vector y devuelve 3 cosas:
+
+- la media
+
+- el valor mínimo
+
+- el valor máximo
+
+Piensen por ejemplo en el vector `c(1, 50, 30, 23)`
+
+**Pista 1**: Puedes echar mano a las funciones `min`, `max` y `mean`  
+
+**Pista 2**: Puedes usar la función `c()` para almacenar tus valores antes de devolverlos
+
+
+```r
+vector &lt;- c(1, 50, 30, 23)
+resumen &lt;- function() {
+  #Aquí va tu código
+}
+#no olvides llamar a la función
+```
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Respuesta ejercicio ~~no tan~~ largo
+
+
+```r
+vector &lt;- c(1, 50, 30, 23)
+resumen &lt;- function(v) {
+  resultados &lt;- c(min = min(v), max = max(v), media = mean(v) ) 
+  return(resultados)
+}
+resumen(vector)
+```
+
+```
+##   min   max media 
+##     1    50    26
+```
+
+--
+
+Ahora tienen su propia función de resumen cada vez que la necesiten 😀
+
+--
+
+Por ejemplo, podemos usar los datos de la clase pasada y hacer un resumen del PIB
+
+
+```r
+resumen(gapminder::gapminder$gdpPercap)
+```
+
+```
+##         min         max       media 
+##    241.1659 113523.1329   7215.3271
+```
+
+--
+
+No es tan útil, ya que existe la función `summary`, pero la lógica aplica para cualquier otra tarea
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Y qué hago con esto?  
+
+.center[
+&lt;img src="https://media.giphy.com/media/a5viI92PAF89q/giphy.gif" width="200" /&gt;
+
+]
+
+--
+
+Si estás pensando que esto se puede combinar con `dplyr`, puedes sentirte así
+
+--
+
+.center[
+&lt;img src="https://media.giphy.com/media/eJX4NrE7T9yhgvqXKX/giphy.gif" width="300" /&gt;
+
+]
+
+--
+
+La combinación de `dplyr` con nuestras propias funciones nos permite crear herramientas poderosas para el procesamiento de datos🤓
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Funciones propias y dplyr
+
+Necesito hacer varias ediciones a una columna de tipo character
+
+
+
+```r
+df &lt;- data.frame(texto = c("3 CAJAS DE LECHE!!", "1 KILO DE ARROZ CON ILEGIBLE-", "CHOCOLATE EN BARRA"))
+df
+```
+
+```
+##                           texto
+## 1            3 CAJAS DE LECHE!!
+## 2 1 KILO DE ARROZ CON ILEGIBLE-
+## 3            CHOCOLATE EN BARRA
+```
+
+--
+
+Creamos una función que hace varias ediciones
+
+
+```r
+library(tidyverse)
+editar_texto &lt;- function(texto) {
+  texto2 &lt;- tolower(texto)
+  texto2 &lt;- str_remove_all(string = texto2, pattern = "ilegible")
+  texto2 &lt;- str_remove_all(string = texto2, pattern = "[:digit:]")
+  texto2 &lt;- str_remove_all(string = texto2, pattern = "[:punct:]")
+  texto2 &lt;- str_remove_all(string = texto2, pattern = "\\+")
+  texto2 &lt;- str_replace(string = texto2, pattern = "chocolate", replacement = "no sano")
+  return(texto2)
+}
+```
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Funciones propias y dplyr
+
+
+Luego puedo usarla dentro del contexto de `dplyr`
+
+
+```r
+df %&gt;% 
+  mutate(texto2 = editar_texto(texto))
+```
+
+```
+##                           texto              texto2
+## 1            3 CAJAS DE LECHE!!      cajas de leche
+## 2 1 KILO DE ARROZ CON ILEGIBLE-  kilo de arroz con 
+## 3            CHOCOLATE EN BARRA    no sano en barra
+```
+
+--
+
+.center[
+&lt;img src="imagenes/alicate2.PNG" width="300" /&gt;
+
+]
+
+
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Funciones propias y dplyr
+
+Probemos con una base de datos de verdad
+
+
+```r
+load(file = "data/gastos_reducida.RData")
+names(bg) &lt;- tolower(names(bg))
+
+bg2 &lt;- bg %&gt;% 
+  mutate(descripcion2 = editar_texto(descripcion_del_gasto)) %&gt;% 
+  select(descripcion2, descripcion_del_gasto) %&gt;% 
+  slice(1:100) 
+```
+
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+## Comentario final
+
+Para construir funciones que llaman a funciones de `dplyr`, es necesario usar evaluaciones no estándar. 
+
+--
+
+Hasta hace un tiempo era necesario aprender un poco de teoría sobre evaluaciones en `R`
+
+--
+
+Hace poco nuestro amigo Hadly Wickham introdujo el operador `{{ }}`, que hace que la implementación sea extraordinariamente fácil
+
+
+--
+
+Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla)
+
+
+--
+
+## Material de estudio
+
+[R para Ciencia de datos](https://r4ds.had.co.nz/functions.html) (énfasis práctico)
+
+[Advanced R](https://adv-r.hadley.nz/functions.html) (énfasis teórico)
+
+[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial)
+
+[Carpentries](https://swcarpentry.github.io/r-novice-inflammation/02-func-R/) (breve)
+
+---
+.linea-superior[]
+.linea-inferior[]
+
+&lt;br&gt;
+&lt;br&gt;
+
+.center[
+
+.texto_intermedio[
+Vamos a pasar al segundo tema de esta clase
+]
+
+## Estilo de código
+
+]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# ¿Por qué es relevante el estilo?
+
+Queremos que nuestro código sea entendido por nuestro yo del futuro 
+
+--
+
+Queremos que otras personas entiendan nuestro código
+
+--
+
+Para lograr ambas cosas existen algunas convenciones, que puedes revisar [acá](https://style.tidyverse.org/syntax.html#object-names)
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Código desordenado
+
+.center[
+&lt;img src="https://media.giphy.com/media/ef7GqsDYDIKFa/giphy.gif" width="700" /&gt;
+
+]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Comentarios
+
+Deben estar pensados para ser leídos por alguien que no ha escrito el código
+
+--
+
+No deben ser una transcripción del código, sino una explicación del mismo
+
+--
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+
+```r
+#Sacar a los -99 y generar hogar tipo 1
+df &lt;- df %&gt;% 
+  filter(gasto != "-99") %&gt;% 
+  mutate(tipo1 = if_else(tipo_hogar == 1, 1, 0))
+```
+
+--
+
+&lt;img src="imagenes/correcto.PNG" width="60" /&gt;
+
+```r
+#-99 se elimina porque corresponden a gastos missing.
+# Los hogares tipo uno son aquellos con adultos mayores. Se necesita
+#  para el análisis posterior.  
+df &lt;- df %&gt;% 
+  filter(gasto != "-99") %&gt;% 
+  mutate(tipo1 = if_else(tipo_hogar == 1, 1, 0))
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Espacios, comas y operadores 
+
+--
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+```r
+filter(df, gasto!="-99" &amp; sexo==1 &amp; edad&gt;=18) 
+df[df$gasto!="-99" &amp; df$sexo==1 &amp; df$edad&gt;=18, c("gasto","sexo")]
+```
+
+--
+
+&lt;img src="imagenes/correcto.PNG" width="60" /&gt;
+
+```r
+filter(df, gasto != "-99" &amp; sexo == 1 &amp; edad &gt;= 18) 
+df[df$gasto != "-99" &amp; df$sexo == 1 &amp; df$edad &gt;= 18, c("gasto", "sexo")]
+```
+
+
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# pipes
+
+No es deseable ahorrar líneas a costa de perder legibilidad
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+
+```r
+iris %&gt;% group_by(Species) %&gt;% summarize_all(mean) %&gt;%
+ungroup %&gt;% gather(measure, value, -Species) %&gt;%
+arrange(value)
+```
+
+&lt;img src="imagenes/correcto.PNG" width="60" /&gt;
+
+
+```r
+iris %&gt;%
+  group_by(Species) %&gt;%
+  summarize_if(is.numeric, mean) %&gt;%
+  ungroup() %&gt;%
+  gather(measure, value, -Species) %&gt;%
+  arrange(value)
+```
+
 ---
 
 class: center, middle
