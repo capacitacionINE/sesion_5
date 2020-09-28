@@ -885,18 +885,38 @@ background-image: url("imagenes/fondo2.PNG")
 background-size: contain;
 background-position: 100% 0%
 
-# Estudio de caso
+# Aplicando lo aprendido
 
 Trabajaremos con las proyecciones de población 
-
-Crearemos una función para editar nombres de variables
 
 ```{r}
 library(readxl)
 proyecciones <- read_excel("data/estimaciones-y-proyecciones-2002-2035-comunas.xlsx") 
 
-names(proyecciones)
+```
 
+Proyecciones por comuna
+
+- Edad
+
+- Sexo
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
+
+Crearemos una función para editar nombres de variables
+
+```{r}
+names(proyecciones)[1:10]
+```
+
+--
+
+```{r}
 editar_nombres <- function(nombres) {
   nombres2 <- tolower(nombres)  
   nombres2 <- str_replace_all(nombres2, pattern = " ", replacement = "_")
@@ -904,9 +924,8 @@ editar_nombres <- function(nombres) {
   nombres2
 }
 
-#editar_nombres(names(proyecciones))
 names(proyecciones) <- editar_nombres(names(proyecciones))
-names(proyecciones)
+names(proyecciones)[1:5]
 ```
 
 
@@ -915,21 +934,19 @@ background-image: url("imagenes/fondo2.PNG")
 background-size: contain;
 background-position: 100% 0%
 
-# Estudio de caso
+# Aplicando lo aprendido
 
 Queremos homologar la escritura de columnas tipo character
 
 ```{r}
 editar_texto <- function(texto) {
   texto2 <- tolower(texto) #minúscula
-  
   #Eliminar tildes  
   texto2 <- str_replace(string = texto2, pattern = "á", replacement = "a")
   texto2 <- str_replace(string = texto2, pattern = "é",  replacement = "e")
   texto2 <- str_replace(string = texto2, pattern = "í",  replacement = "i")
   texto2 <- str_replace(string = texto2, pattern = "ó",  replacement = "o")
   texto2 <- str_replace(string = texto2, pattern = "ú",  replacement = "u")
-  
   #Reemplazar espacios por guiones
   texto2 <- str_replace_all(string = texto2, pattern = " ",  replacement = "_")
   texto2
@@ -938,6 +955,12 @@ editar_texto <- function(texto) {
 
 ```
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
 
 Veamos algunos resultados
 
@@ -959,15 +982,15 @@ background-image: url("imagenes/fondo2.PNG")
 background-size: contain;
 background-position: 100% 0%
 
-# Estudio de caso
+# Aplicando lo aprendido
 
 Ahora podemos usar nuestra función con las demás variables de texto
 
-```{r}
+```{r}         
 proyecciones <- proyecciones %>% 
-  mutate(comuna2 = editar_texto(nombre_comuna),
-         region2 = editar_texto(nombre_region),
-         provincia2 = editar_texto(nombre_provincia))
+  mutate(region2 = editar_texto(nombre_region),
+         provincia2 = editar_texto(nombre_provincia),
+         comuna2 = editar_texto(nombre_comuna))
 
 #proyecciones %>% 
 #  select(comuna2, region2, provincia2) %>% 
@@ -975,7 +998,9 @@ proyecciones <- proyecciones %>%
 
 ```
 
+--
 
+En las próximas sesiones, conoceremos métodos para hacer lo anterior en solo una línea de código👀
 
 ---
 background-image: url("imagenes/fondo2.PNG")
@@ -986,7 +1011,7 @@ background-position: 100% 0%
 
 ## Comentario final
 
-Para construir funciones que llaman a funciones de `dplyr`, es necesario usar evaluaciones no estándar (NSE). 
+Para construir funciones que incorporan código de `dplyr`, es necesario usar evaluaciones no estándar (NSE). 
 
 --
 
@@ -1001,9 +1026,69 @@ Nuestro amigo Hadley Wickham introdujo el operador `{{ }}` (*embracing*), que ha
 
 Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla)
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+Tenemos muchas columnas con proyecciones de población
+
 --
 
-## Material de estudio
+Queremos una función que sume por sexo la cantidad de personas
+
+--
+
+```{r, error=T}
+suma_sexo <- function(datos, columna) {
+  datos %>% 
+    group_by(sexo) %>% 
+    summarise(total =  sum(columna)) 
+}
+
+suma_sexo(proyecciones, poblacion_2022)
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+Versión antigua (con teoría)
+```{r}
+suma_sexo <- function(datos, columna) {
+  col_quo <- enquo(columna) # variable "quoted"
+  datos %>% 
+    group_by(sexo) %>% 
+    summarise(total =  sum(!!col_quo)) # operador bang-bang
+}
+
+```
+
+--
+
+Versión simplificada
+
+```{r}
+suma_sexo <- function(datos, columna) {
+  datos %>% 
+    group_by(sexo) %>% 
+    summarise(total =  sum({{columna}})) # operador embracing
+}
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
 
 [R para Ciencia de datos](https://r4ds.had.co.nz/functions.html) (énfasis práctico)
 

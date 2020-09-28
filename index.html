@@ -4,7 +4,7 @@
     <title>Proceso de acompañamiento coyuntural y automatización de la Encuesta Nacional de Empleo</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <meta name="date" content="2020-09-21" />
+    <meta name="date" content="2020-09-28" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -21,11 +21,14 @@ class: center, middle
 &lt;img src="imagenes/logo_portada2.png" width="200" /&gt;
 
 
-## Capacitación en R
+## Capacitación en R y herramientas de productividad
+
+## Proyecto Estratégico Servicios Compartidos para la Producción Estadística
 
 ## Funciones y estilo de código
 
-### septiembre 2020
+### Septiembre 2020
+
 
 
 
@@ -55,6 +58,10 @@ background-position: 100% 0%
 --
 
 - Mi primera función
+
+--
+
+- Estilo de código
 
 ---
 
@@ -114,12 +121,12 @@ La función `mean` hace lo siguiente:
 
 
 ```r
-suma &lt;- 1 + 2 + 3
+suma &lt;- 1 + 3 + 4
 suma / 3
 ```
 
 ```
-## [1] 2
+## [1] 2.666667
 ```
 --
 
@@ -144,7 +151,7 @@ background-position: 100% 0%
 
 # La función mean
 
-De manera genérica la función hace lo siguiente
+De manera genérica, la función hace lo siguiente
 
 .center[$$\bar{X} = \frac{\sum_{i=1}^{n}x_i}{n}$$
 ]
@@ -209,24 +216,24 @@ background-position: 100% 0%
 
 ```r
 epf2 %&gt;%
-  group_by(quintil) %&gt;% 
+* group_by(quintil) %&gt;%
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %&gt;% 
-  pivot_longer(-quintil, names_to = "tipo", values_to = "valor") %&gt;% 
+* pivot_longer(-quintil, names_to = "tipo", values_to = "valor") %&gt;%
   ggplot(aes(quintil, valor, fill = tipo )) +
   geom_bar(stat = "identity", position = "dodge")
 
 epf2 %&gt;%
-  group_by(zona) %&gt;% 
+* group_by(zona) %&gt;%
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %&gt;% 
-  pivot_longer(-zona, names_to = "tipo", values_to = "valor") %&gt;% 
+* pivot_longer(-zona, names_to = "tipo", values_to = "valor") %&gt;%
   ggplot(aes(as.factor(zona), valor, fill = tipo )) +
   geom_bar(stat = "identity", position = "dodge")
 
 
 epf2 %&gt;%
-  group_by(sexo) %&gt;% 
+* group_by(sexo) %&gt;%
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %&gt;% 
-  pivot_longer(-sexo, names_to = "tipo", values_to = "valor") %&gt;% 
+* pivot_longer(-sexo, names_to = "tipo", values_to = "valor") %&gt;%
   ggplot(aes(as.factor(sexo), valor, fill = tipo )) +
   geom_bar(stat = "identity", position = "dodge")
 ```
@@ -321,10 +328,10 @@ background-position: 100% 0%
 
 ```r
 #Seleccionar los registros a codificar
-seleccion_cod &lt;- seleccionar_codificacion(ciuo, batch[[codificador]])
+*seleccion_cod &lt;- seleccionar_codificacion(ciuo, batch[[codificador]])
 
 #Asignar carga de codificación a una persona en específico  
-carga_codificacion[[codificador]] &lt;- aumentar_cargas(carga_codificacion[[codificador]], seleccion_cod)
+*carga_codificacion[[codificador]] &lt;- aumentar_cargas(carga_codificacion[[codificador]], seleccion_cod)
 
 #Disminuir registros asignados
 asignados &lt;- seleccion_cod %&gt;% 
@@ -397,7 +404,50 @@ environment(mi_funcion)
 ## &lt;environment: R_GlobalEnv&gt;
 ```
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
 
+# Variantes de la implementación
+
+A veces, verán otro estilo de código
+
+
+```r
+mi_funcion &lt;- function(x, y) suma &lt;- x + y   
+```
+
+--
+
+También podrán ver funciones anónimas en ciertos contextos
+
+
+```r
+x &lt;- c(1, 2, 3)
+y &lt;- c(4, 5, 6)
+*purrr::map2(x, y, function(x, y) x + y)
+```
+
+--
+
+.discussion[
+- Las funciones anónimas no están asignadas a un objeto
+
+- Se escriben cuando uno piensa que no se volverán a usar
+]
+
+--
+
+### Por el momento, mantendremos las cosas sencillas y usaremos el estilo más tradicional 
+
+
+```r
+mi_funcion &lt;- function(x, y) {
+  suma &lt;- x + y   
+  return(suma)
+}
+```
 
 ---
 background-image: url("imagenes/fondo2.PNG")
@@ -457,7 +507,7 @@ background-position: 100% 0%
 
 # Ejercicio rápido
 
-Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadros de dos números. Luego, evalúa la función en los números 5 y 4 (en ese orden)
+Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadrados de dos números. Luego, evalúa la función en los números 5 y 4 (en ese orden)
 
 --
 
@@ -830,7 +880,7 @@ editar_texto &lt;- function(texto) {
   texto2 &lt;- str_remove_all(string = texto2, pattern = "[:digit:]")
   texto2 &lt;- str_remove_all(string = texto2, pattern = "[:punct:]")
   texto2 &lt;- str_remove_all(string = texto2, pattern = "\\+")
-  texto2 &lt;- str_replace(string = texto2, pattern = "chocolate", replacement = "no sano")
+  texto2 &lt;- str_replace(string = texto2, pattern = "chocolate", replacement = "NO SANO")
   return(texto2)
 }
 ```
@@ -854,7 +904,7 @@ df %&gt;%
 ##                           texto              texto2
 ## 1            3 CAJAS DE LECHE!!      cajas de leche
 ## 2 1 KILO DE ARROZ CON ILEGIBLE-  kilo de arroz con 
-## 3            CHOCOLATE EN BARRA    no sano en barra
+## 3            CHOCOLATE EN BARRA    NO SANO en barra
 ```
 
 --
@@ -876,12 +926,30 @@ background-position: 100% 0%
 
 Probemos con una base de datos de verdad
 
+Ya conocemos la EPF
+
+
 
 ```r
 load(file = "data/gastos_reducida.RData")
 names(bg) &lt;- tolower(names(bg))
 
-bg2 &lt;- bg %&gt;% 
+head(bg$descripcion_del_gasto, 10)
+```
+
+```
+##  [1] "ELECTRICIDAD"              "BOLSA GENERO"             
+##  [3] " CAFE + SOPAIPILLA"        "PAPAS FRESCAS GRANEL"     
+##  [5] " PEAJE"                    "PASAJE EN METRO"          
+##  [7] "REPOLLO PICADO Y ENVASADO" "ARGOLLAS MATRIMONIO"      
+##  [9] "QUEOS FRESCO VACA"         "PALTA HASS"
+```
+
+--
+
+
+```r
+bg &lt;- bg %&gt;% 
   mutate(descripcion2 = editar_texto(descripcion_del_gasto)) %&gt;% 
   select(descripcion2, descripcion_del_gasto) %&gt;% 
   slice(1:100) 
@@ -894,35 +962,247 @@ background-image: url("imagenes/fondo2.PNG")
 background-size: contain;
 background-position: 100% 0%
 
+# Aplicando lo aprendido
+
+Trabajaremos con las proyecciones de población 
+
+
+```r
+library(readxl)
+proyecciones &lt;- read_excel("data/estimaciones-y-proyecciones-2002-2035-comunas.xlsx") 
+```
+
+Proyecciones por comuna
+
+- Edad
+
+- Sexo
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
+
+Crearemos una función para editar nombres de variables
+
+
+```r
+names(proyecciones)[1:10]
+```
+
+```
+##  [1] "Region"                      "Nombre Region"              
+##  [3] "Provincia"                   "Nombre Provincia"           
+##  [5] "Comuna"                      "Nombre Comuna"              
+##  [7] "Sexo\r\n1=Hombre\r\n2=Mujer" "Edad"                       
+##  [9] "Poblacion 2002"              "Poblacion 2003"
+```
+
+```r
+editar_nombres &lt;- function(nombres) {
+  nombres2 &lt;- tolower(nombres)  
+  nombres2 &lt;- str_replace_all(nombres2, pattern = " ", replacement = "_")
+  nombres2 &lt;- str_replace_all(nombres2, pattern = "sexo\r\n1=hombre\r\n2=mujer", replacement = "sexo")
+  nombres2
+}
+
+names(proyecciones) &lt;- editar_nombres(names(proyecciones))
+names(proyecciones)[1:5]
+```
+
+```
+## [1] "region"           "nombre_region"    "provincia"        "nombre_provincia"
+## [5] "comuna"
+```
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
+
+Queremos homologar la escritura de columnas tipo character
+
+
+```r
+editar_texto &lt;- function(texto) {
+  texto2 &lt;- tolower(texto) #minúscula
+  #Eliminar tildes  
+  texto2 &lt;- str_replace(string = texto2, pattern = "á", replacement = "a")
+  texto2 &lt;- str_replace(string = texto2, pattern = "é",  replacement = "e")
+  texto2 &lt;- str_replace(string = texto2, pattern = "í",  replacement = "i")
+  texto2 &lt;- str_replace(string = texto2, pattern = "ó",  replacement = "o")
+  texto2 &lt;- str_replace(string = texto2, pattern = "ú",  replacement = "u")
+  #Reemplazar espacios por guiones
+  texto2 &lt;- str_replace_all(string = texto2, pattern = " ",  replacement = "_")
+  texto2
+}
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
+
+Veamos algunos resultados
+
+
+```r
+proyecciones %&gt;% 
+  select(nombre_comuna) %&gt;% 
+  mutate(comuna2 = editar_texto(nombre_comuna)) %&gt;% 
+  group_by(comuna2) %&gt;% 
+  slice(1) %&gt;% 
+  ungroup() %&gt;% 
+  slice(1:5)
+```
+
+```
+## # A tibble: 5 x 2
+##   nombre_comuna   comuna2        
+##   &lt;chr&gt;           &lt;chr&gt;          
+## 1 Algarrobo       algarrobo      
+## 2 Alhué           alhue          
+## 3 Alto Biobío     alto_biobio    
+## 4 Alto del Carmen alto_del_carmen
+## 5 Alto Hospicio   alto_hospicio
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
+
+Ahora podemos usar nuestra función con las demás variables de texto
+
+
+```r
+proyecciones &lt;- proyecciones %&gt;% 
+  mutate(region2 = editar_texto(nombre_region),
+         provincia2 = editar_texto(nombre_provincia),
+         comuna2 = editar_texto(nombre_comuna))
+
+#proyecciones %&gt;% 
+#  select(comuna2, region2, provincia2) %&gt;% 
+#  slice(1:10)
+```
+
+--
+
+En las próximas sesiones, conoceremos métodos para hacer lo anterior en solo una línea de código👀
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
 # Para seguir profundizando
 
 ## Comentario final
 
-Para construir funciones que llaman a funciones de `dplyr`, es necesario usar evaluaciones no estándar. 
+Para construir funciones que incorporan código de `dplyr`, es necesario usar evaluaciones no estándar (NSE). 
 
 --
 
-Hasta hace un tiempo era necesario aprender un poco de teoría sobre evaluaciones en `R`
+Hasta hace un tiempo era necesario aprender un poco de teoría sobre evaluaciones en `R` para implementar NSE
 
 --
 
-Hace poco nuestro amigo Hadley Wickham introdujo el operador `{{ }}`, que hace que la implementación sea extraordinariamente fácil
+Nuestro amigo Hadley Wickham introdujo el operador `{{ }}` (*embracing*), que hace que la implementación de evaluaciones no estándar sea trivial
 
 
 --
 
 Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla)
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+Tenemos muchas columnas con proyecciones de población
 
 --
 
-## Material de estudio
+Queremos una función que sume por sexo la cantidad de personas
+
+--
+
+
+```r
+suma_sexo &lt;- function(datos, columna) {
+  datos %&gt;% 
+    group_by(sexo) %&gt;% 
+    summarise(total =  sum(columna)) 
+}
+
+suma_sexo(proyecciones, poblacion_2022)
+```
+
+```
+## Error: Problem with `summarise()` input `total`.
+## x objeto 'poblacion_2022' no encontrado
+## i Input `total` is `sum(columna)`.
+## i The error occured in group 1: sexo = 1.
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
+
+Versión antigua (con teoría)
+
+```r
+suma_sexo &lt;- function(datos, columna) {
+  col_quo &lt;- enquo(columna) # variable "quoted"
+  datos %&gt;% 
+    group_by(sexo) %&gt;% 
+    summarise(total =  sum(!!col_quo)) # operador bang-bang
+}
+```
+
+--
+
+Versión simplificada
+
+
+```r
+suma_sexo &lt;- function(datos, columna) {
+  datos %&gt;% 
+    group_by(sexo) %&gt;% 
+    summarise(total =  sum({{columna}})) # operador embracing
+}
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Para seguir profundizando
 
 [R para Ciencia de datos](https://r4ds.had.co.nz/functions.html) (énfasis práctico)
 
 [Advanced R](https://adv-r.hadley.nz/functions.html) (énfasis teórico)
 
-[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial)
+[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial) (mirada general)
 
 [Carpentries](https://swcarpentry.github.io/r-novice-inflammation/02-func-R/) (breve)
 
@@ -936,10 +1216,8 @@ Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla
 .center[
 
 .texto_intermedio[
-Vamos a pasar al segundo tema de esta clase
+Segundo tema de esta clase: estilo de código
 ]
-
-## Estilo de código
 
 ]
 
@@ -1038,6 +1316,54 @@ df[df$gasto != "-99" &amp; df$sexo == 1 &amp; df$edad &gt;= 18, c("gasto", "sexo
 ```
 
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Indentación y bloques de código
+
+En `R` la indentación no es parte del código, pero es muy aconsejable usarla
+
+--
+
+&lt;img src="imagenes/incorrecto.PNG" width="60" /&gt;
+
+
+```r
+if (y == 0) {
+if (x &gt; 0) {
+log(x)
+} else {
+message("x is negative or zero")
+}
+} else {
+y^x
+}
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Indentación y bloques de código
+
+&lt;img src="imagenes/correcto.PNG" width="60" /&gt;
+
+
+
+```r
+if (y == 0) {
+  if (x &gt; 0) {
+    log(x)
+  } else {
+    message("x is negative or zero")
+  }
+} else {
+  y^x
+}
+```
 
 
 ---
@@ -1080,8 +1406,13 @@ class: center, middle
 &lt;img src="imagenes/logo_portada2.png" width="200" /&gt;
 
 
+## Capacitación en R y herramientas de productividad
 
-## Gracias
+## Proyecto Estratégico Servicios Compartidos para la Producción Estadística
+
+## Funciones y estilo de código
+
+### Septiembre 2020
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
