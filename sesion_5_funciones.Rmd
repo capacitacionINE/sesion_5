@@ -976,6 +976,7 @@ proyecciones %>%
 ```
 
 
+
 ---
 
 background-image: url("imagenes/fondo2.PNG")
@@ -1097,6 +1098,58 @@ background-position: 100% 0%
 [Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial) (mirada general)
 
 [Carpentries](https://swcarpentry.github.io/r-novice-inflammation/02-func-R/) (breve)
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Ejercicio para la casa
+
+Trabajaremos con la base de datos Nacimientos_2017
+
+Recuerden que para cargar los datos deben usar la función `read_excel`
+
+* Aplica la función `editar_nombres` a los nombres de la base y ve el resultado  
+* Aplica la función  `editar_texto` sobre la columna PAIS_ORIGEN y ve qué pasa
+* Crea una función llamada `reescalar` que reciba como input un vector y devuelva ese mismo vector con los valores reescalados entre 0 y 1. Luego, evalúa esta función en las columnas PESO, TALLA, EDAD_P y EDAD_M y crea nuevas variables que contengan el reescalamiento. 
+
+**Pista:** Revisa la lámina de la presentación en la que se revisa este problema 
+
+.center[
+`df$a <- (df$a - min(df$a)) / (max(df$a) - min(df$a))`
+]
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Ejercicio para la casa
+
+* Crea una función llamada `estandarizar` que reciba como input un vector y devuelva los valores expresados en desviaciones estándar de la media. Luego, evalúa la función las columnas PESO, TALLA, EDAD_P y EDAD_M crea nuevas variables que contengan la estandarización.  
+
+**Pista:** El método que debes usar es restar a cada valor la media, para luego dividir por la desviación estándar.
+
+.center[
+$\frac{(x_i-media(x))}{sd(x)}$
+]
+
+**Bonus: Para los valientes** 
+
+Construye una función que calcule la desviación estándar. Recuerda que la fórmula de la desviación estándar para una población (tenemos datos poblacionales y no muestrales) es la siguiente: 
+
+.center[
+$s = \sqrt{\frac{\sum_{i=1}^{N}(x_i-\bar{x})}{N}}$
+]
+
+Usa todas las herrramientas de las que dispongas, a excepción de una función de R que calcule la desviación estándar.  
+
+
+
+
 
 ---
 .linea-superior[]
