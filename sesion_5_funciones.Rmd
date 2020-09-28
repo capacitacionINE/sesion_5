@@ -26,11 +26,14 @@ class: center, middle
 <img src="imagenes/logo_portada2.png" width="200" />
 
 
-## Capacitación en R
+## Capacitación en R y herramientas de productividad
+
+## Proyecto Estratégico Servicios Compartidos para la Producción Estadística
 
 ## Funciones y estilo de código
 
-### septiembre 2020
+### Septiembre 2020
+
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
@@ -70,6 +73,10 @@ background-position: 100% 0%
 --
 
 - Mi primera función
+
+--
+
+- Estilo de código
 
 ---
 
@@ -128,7 +135,7 @@ La función `mean` hace lo siguiente:
 **input**: 1, 3 y 4
 
 ```{r}
-suma <- 1 + 2 + 3
+suma <- 1 + 3 + 4
 suma / 3
 ```
 --
@@ -149,7 +156,7 @@ background-position: 100% 0%
 
 # La función mean
 
-De manera genérica la función hace lo siguiente
+De manera genérica, la función hace lo siguiente
 
 .center[$$\bar{X} = \frac{\sum_{i=1}^{n}x_i}{n}$$
 ]
@@ -213,24 +220,24 @@ background-position: 100% 0%
 ```{r, eval=F}
  
 epf2 %>%
-  group_by(quintil) %>% 
+  group_by(quintil) %>%  #<<
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %>% 
-  pivot_longer(-quintil, names_to = "tipo", values_to = "valor") %>% 
+  pivot_longer(-quintil, names_to = "tipo", values_to = "valor") %>% #<<
   ggplot(aes(quintil, valor, fill = tipo )) +
   geom_bar(stat = "identity", position = "dodge")
 
 epf2 %>%
-  group_by(zona) %>% 
+  group_by(zona) %>% #<<
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %>% 
-  pivot_longer(-zona, names_to = "tipo", values_to = "valor") %>% 
+  pivot_longer(-zona, names_to = "tipo", values_to = "valor") %>% #<<
   ggplot(aes(as.factor(zona), valor, fill = tipo )) +
   geom_bar(stat = "identity", position = "dodge")
 
 
 epf2 %>%
-  group_by(sexo) %>% 
+  group_by(sexo) %>% #<<
   summarise_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(mean)) %>% 
-  pivot_longer(-sexo, names_to = "tipo", values_to = "valor") %>% 
+  pivot_longer(-sexo, names_to = "tipo", values_to = "valor") %>% #<<
   ggplot(aes(as.factor(sexo), valor, fill = tipo )) +
   geom_bar(stat = "identity", position = "dodge")
 
@@ -324,10 +331,10 @@ background-position: 100% 0%
 
 ```{r, eval=F }
 #Seleccionar los registros a codificar
-seleccion_cod <- seleccionar_codificacion(ciuo, batch[[codificador]])
+seleccion_cod <- seleccionar_codificacion(ciuo, batch[[codificador]]) #<<
 
 #Asignar carga de codificación a una persona en específico  
-carga_codificacion[[codificador]] <- aumentar_cargas(carga_codificacion[[codificador]], seleccion_cod)
+carga_codificacion[[codificador]] <- aumentar_cargas(carga_codificacion[[codificador]], seleccion_cod) #<<
 
 #Disminuir registros asignados
 asignados <- seleccion_cod %>% 
@@ -359,6 +366,7 @@ mi_funcion <- function(x, y) {
   suma <- x + y   
   return(suma)
 }
+
 ```
 
 --
@@ -380,7 +388,47 @@ body(mi_funcion)
 environment(mi_funcion)
 ```
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
 
+# Variantes de la implementación
+
+A veces, verán otro estilo de código
+
+```{r}
+mi_funcion <- function(x, y) suma <- x + y   
+```
+
+--
+
+También podrán ver funciones anónimas en ciertos contextos
+
+```{r, eval=F}
+x <- c(1, 2, 3)
+y <- c(4, 5, 6)
+purrr::map2(x, y, function(x, y) x + y) #<<
+```
+
+--
+
+.discussion[
+- Las funciones anónimas no están asignadas a un objeto
+
+- Se escriben cuando uno piensa que no se volverán a usar
+]
+
+--
+
+### Por el momento, mantendremos las cosas sencillas y usaremos el estilo más tradicional 
+
+```{r}
+mi_funcion <- function(x, y) {
+  suma <- x + y   
+  return(suma)
+}
+```
 
 ---
 background-image: url("imagenes/fondo2.PNG")
@@ -437,7 +485,7 @@ background-position: 100% 0%
 
 # Ejercicio rápido
 
-Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadros de dos números. Luego, evalúa la función en los números 5 y 4 (en ese orden)
+Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadrados de dos números. Luego, evalúa la función en los números 5 y 4 (en ese orden)
 
 --
 
@@ -771,7 +819,7 @@ editar_texto <- function(texto) {
   texto2 <- str_remove_all(string = texto2, pattern = "[:digit:]")
   texto2 <- str_remove_all(string = texto2, pattern = "[:punct:]")
   texto2 <- str_remove_all(string = texto2, pattern = "\\+")
-  texto2 <- str_replace(string = texto2, pattern = "chocolate", replacement = "no sano")
+  texto2 <- str_replace(string = texto2, pattern = "chocolate", replacement = "NO SANO")
   return(texto2)
 }
 
@@ -811,15 +859,119 @@ background-position: 100% 0%
 
 Probemos con una base de datos de verdad
 
+Ya conocemos la EPF
+
+
 ```{r}
 load(file = "data/gastos_reducida.RData")
 names(bg) <- tolower(names(bg))
 
-bg2 <- bg %>% 
+head(bg$descripcion_del_gasto, 10)
+```
+
+--
+
+```{r}
+bg <- bg %>% 
   mutate(descripcion2 = editar_texto(descripcion_del_gasto)) %>% 
   select(descripcion2, descripcion_del_gasto) %>% 
   slice(1:100) 
+```
 
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Estudio de caso
+
+Trabajaremos con las proyecciones de población 
+
+Crearemos una función para editar nombres de variables
+
+```{r}
+library(readxl)
+proyecciones <- read_excel("data/estimaciones-y-proyecciones-2002-2035-comunas.xlsx") 
+
+names(proyecciones)
+
+editar_nombres <- function(nombres) {
+  nombres2 <- tolower(nombres)  
+  nombres2 <- str_replace_all(nombres2, pattern = " ", replacement = "_")
+  nombres2 <- str_replace_all(nombres2, pattern = "sexo\r\n1=hombre\r\n2=mujer", replacement = "sexo")
+  nombres2
+}
+
+#editar_nombres(names(proyecciones))
+names(proyecciones) <- editar_nombres(names(proyecciones))
+names(proyecciones)
+```
+
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Estudio de caso
+
+Queremos homologar la escritura de columnas tipo character
+
+```{r}
+editar_texto <- function(texto) {
+  texto2 <- tolower(texto) #minúscula
+  
+  #Eliminar tildes  
+  texto2 <- str_replace(string = texto2, pattern = "á", replacement = "a")
+  texto2 <- str_replace(string = texto2, pattern = "é",  replacement = "e")
+  texto2 <- str_replace(string = texto2, pattern = "í",  replacement = "i")
+  texto2 <- str_replace(string = texto2, pattern = "ó",  replacement = "o")
+  texto2 <- str_replace(string = texto2, pattern = "ú",  replacement = "u")
+  
+  #Reemplazar espacios por guiones
+  texto2 <- str_replace_all(string = texto2, pattern = " ",  replacement = "_")
+  texto2
+}
+
+
+```
+
+
+Veamos algunos resultados
+
+```{r}
+proyecciones %>% 
+  select(nombre_comuna) %>% 
+  mutate(comuna2 = editar_texto(nombre_comuna)) %>% 
+  group_by(comuna2) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  slice(1:5)
+
+```
+
+
+---
+
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Estudio de caso
+
+Ahora podemos usar nuestra función con las demás variables de texto
+
+```{r}
+proyecciones <- proyecciones %>% 
+  mutate(comuna2 = editar_texto(nombre_comuna),
+         region2 = editar_texto(nombre_region),
+         provincia2 = editar_texto(nombre_provincia))
+
+#proyecciones %>% 
+#  select(comuna2, region2, provincia2) %>% 
+#  slice(1:10)
 
 ```
 
@@ -834,21 +986,20 @@ background-position: 100% 0%
 
 ## Comentario final
 
-Para construir funciones que llaman a funciones de `dplyr`, es necesario usar evaluaciones no estándar. 
+Para construir funciones que llaman a funciones de `dplyr`, es necesario usar evaluaciones no estándar (NSE). 
 
 --
 
-Hasta hace un tiempo era necesario aprender un poco de teoría sobre evaluaciones en `R`
+Hasta hace un tiempo era necesario aprender un poco de teoría sobre evaluaciones en `R` para implementar NSE
 
 --
 
-Hace poco nuestro amigo Hadley Wickham introdujo el operador `{{ }}`, que hace que la implementación sea extraordinariamente fácil
+Nuestro amigo Hadley Wickham introdujo el operador `{{ }}` (*embracing*), que hace que la implementación de evaluaciones no estándar sea trivial
 
 
 --
 
 Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla)
-
 
 --
 
@@ -858,7 +1009,7 @@ Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla
 
 [Advanced R](https://adv-r.hadley.nz/functions.html) (énfasis teórico)
 
-[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial)
+[Datacamp](https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial) (mirada general)
 
 [Carpentries](https://swcarpentry.github.io/r-novice-inflammation/02-func-R/) (breve)
 
@@ -872,10 +1023,8 @@ Ya no es necesario entender la teoría que hay detrás (yo recomiendo estudiarla
 .center[
 
 .texto_intermedio[
-Vamos a pasar al segundo tema de esta clase
+Segundo tema de esta clase: estilo de código
 ]
-
-## Estilo de código
 
 ]
 
@@ -972,6 +1121,54 @@ df[df$gasto != "-99" & df$sexo == 1 & df$edad >= 18, c("gasto", "sexo")]
 ```
 
 
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Indentación y bloques de código
+
+En `R` la indentación no es parte del código, pero es muy aconsejable usarla
+
+--
+
+<img src="imagenes/incorrecto.PNG" width="60" />
+
+```{r, eval=F}
+
+if (y == 0) {
+if (x > 0) {
+log(x)
+} else {
+message("x is negative or zero")
+}
+} else {
+y^x
+}
+
+```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Indentación y bloques de código
+
+<img src="imagenes/correcto.PNG" width="60" />
+
+
+```{r, eval=F}
+if (y == 0) {
+  if (x > 0) {
+    log(x)
+  } else {
+    message("x is negative or zero")
+  }
+} else {
+  y^x
+}
+```
 
 
 ---
@@ -1013,5 +1210,10 @@ class: center, middle
 <img src="imagenes/logo_portada2.png" width="200" />
 
 
+## Capacitación en R y herramientas de productividad
 
-## Gracias
+## Proyecto Estratégico Servicios Compartidos para la Producción Estadística
+
+## Funciones y estilo de código
+
+### Septiembre 2020
