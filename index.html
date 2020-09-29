@@ -4,7 +4,7 @@
     <title>Proceso de acompañamiento coyuntural y automatización de la Encuesta Nacional de Empleo</title>
     <meta charset="utf-8" />
     <meta name="author" content="" />
-    <meta name="date" content="2020-09-28" />
+    <meta name="date" content="2020-09-29" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -189,10 +189,8 @@ epf2 &lt;- epf %&gt;%
   select(gastot_hd_pc, ing_disp_hog_hd_pc, zona =  ï..zona, jhogar, sexo) %&gt;% 
   mutate_at(vars(gastot_hd_pc, ing_disp_hog_hd_pc), funs(as.numeric(gsub(pattern = ",", replacement = ".", x = .)) )) %&gt;% 
   filter(jhogar == 1) #dejar un registro por hogar
-
 #Calcular los puntos de corte para los quintiles  
 quintiles &lt;- quantile(x = epf2$ing_disp_hog_hd_pc, c(0, 0.2, 0.4, 0.6, 0.8, 1)) 
-
 #Crear la variable quintil.
 epf2 &lt;- epf2 %&gt;% 
   mutate(quintil =  case_when(
@@ -340,10 +338,10 @@ asignados &lt;- seleccion_cod %&gt;%
 ciuo &lt;- ciuo %&gt;% 
   filter(!idrph %in% asignados)
 
-#Seleccionar reistros que serán revisados. Solo se revisa el 90% 
+#Seleccionar registros que serán revisados. Solo se revisa el 90% 
 a_revisar &lt;- seleccionar_revision(seleccion_cod)
 
-#Dsitribuir entre todos las personas restantes los registros a revisar
+#Dsitribuir entre todas las personas restantes los registros a revisar
 asignacion_revision &lt;-  distribuir_revision(a_revisar, codificadores, codificador)
 ```
 
@@ -496,9 +494,6 @@ Si quieres ingresar los argumentos en otro orden, debes usar sus nombres
 mi_funcion(y = 2, x = 1)
 ```
 
---
-
-Si no hay preguntas, vamos por el primer ejercicio
 
 ---
 background-image: url("imagenes/fondo2.PNG")
@@ -507,7 +502,7 @@ background-position: 100% 0%
 
 # Ejercicio rápido
 
-Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadrados de dos números. Luego, evalúa la función en los números 5 y 4 (en ese orden)
+Creemos una función llamada `resta_cuadrados` que retorne la resta de los cuadrados de dos números (el operador potencia puede escribirse "**"). Luego, evalúa la función en los números 5 y 4 (en ese orden)
 
 --
 
@@ -543,6 +538,10 @@ background-position: 100% 0%
 Hagamos que nuestra función sea un poco más interesante. 
 
 Agreguemos un argumento que reciba tu nombre en formato string. La función debe devolver el siguiente texto: *[nombre], el resultado es: [resultado]*    
+
+--
+
+**Pista:** deberías usar la función `paste0` para generar la salida
 
 --
 
@@ -1010,7 +1009,6 @@ editar_nombres &lt;- function(nombres) {
   nombres2 &lt;- str_replace_all(nombres2, pattern = "sexo\r\n1=hombre\r\n2=mujer", replacement = "sexo")
   nombres2
 }
-
 names(proyecciones) &lt;- editar_nombres(names(proyecciones))
 names(proyecciones)[1:5]
 ```
@@ -1019,6 +1017,38 @@ names(proyecciones)[1:5]
 ## [1] "region"           "nombre_region"    "provincia"        "nombre_provincia"
 ## [5] "comuna"
 ```
+
+---
+background-image: url("imagenes/fondo2.PNG")
+background-size: contain;
+background-position: 100% 0%
+
+# Aplicando lo aprendido
+
+Existe una función del paquete janitor que hace algo similar
+
+
+
+```r
+x &lt;- janitor::clean_names(dat = proyecciones)
+names(x)[1:10]
+```
+
+```
+##  [1] "region"           "nombre_region"    "provincia"        "nombre_provincia"
+##  [5] "comuna"           "nombre_comuna"    "sexo"             "edad"            
+##  [9] "poblacion_2002"   "poblacion_2003"
+```
+
+--
+
+Ahora tenemos el poder de crear las mismas funciones que están en paquetes populares 😄🤓 
+
+
+.center[
+&lt;img src="imagenes/super_nerd.PNG" width="280" /&gt;
+
+]
 
 
 ---
@@ -1040,8 +1070,6 @@ editar_texto &lt;- function(texto) {
   texto2 &lt;- str_replace(string = texto2, pattern = "í",  replacement = "i")
   texto2 &lt;- str_replace(string = texto2, pattern = "ó",  replacement = "o")
   texto2 &lt;- str_replace(string = texto2, pattern = "ú",  replacement = "u")
-  #Reemplazar espacios por guiones
-  texto2 &lt;- str_replace_all(string = texto2, pattern = " ",  replacement = "_")
   texto2
 }
 ```
@@ -1072,9 +1100,9 @@ proyecciones %&gt;%
 ##   &lt;chr&gt;           &lt;chr&gt;          
 ## 1 Algarrobo       algarrobo      
 ## 2 Alhué           alhue          
-## 3 Alto Biobío     alto_biobio    
-## 4 Alto del Carmen alto_del_carmen
-## 5 Alto Hospicio   alto_hospicio
+## 3 Alto Biobío     alto biobio    
+## 4 Alto del Carmen alto del carmen
+## 5 Alto Hospicio   alto hospicio
 ```
 
 
@@ -1240,7 +1268,7 @@ background-position: 100% 0%
 
 # Ejercicio para la casa
 
-* Crea una función llamada `estandarizar` que reciba como input un vector y devuelva los valores expresados en desviaciones estándar de la media. Luego, evalúa la función las columnas PESO, TALLA, EDAD_P y EDAD_M crea nuevas variables que contengan la estandarización.  
+* Crea una función llamada `estandarizar` que reciba como input un vector y devuelva los valores expresados en desviaciones estándar de la media. Luego, evalúa la función en las columnas PESO, TALLA, EDAD_P y EDAD_M crea nuevas variables que contengan la estandarización.  
 
 **Pista:** El método que debes usar es restar a cada valor la media, para luego dividir por la desviación estándar.
 
@@ -1248,7 +1276,7 @@ background-position: 100% 0%
 `\(\frac{(x_i-media(x))}{sd(x)}\)`
 ]
 
-**Bonus: Para los valientes** 
+**Bonus: Para las y los valientes** 
 
 Construye una función que calcule la desviación estándar. Recuerda que la fórmula de la desviación estándar para una población (tenemos datos poblacionales y no muestrales) es la siguiente: 
 
@@ -1274,6 +1302,12 @@ Usa todas las herrramientas de las que dispongas, a excepción de una función d
 .texto_intermedio[
 Segundo tema de esta clase: estilo de código
 ]
+
+]
+
+
+.center[
+&lt;img src="imagenes/like_a_sir.PNG" width="300" /&gt;
 
 ]
 
